@@ -761,8 +761,8 @@ static rsRetVal closeSess(tcpsrv_t *const pThis, tcpsrv_io_descr_t *const pioDes
     assert(pioDescr->ptrType == NSD_PTR_TYPE_SESS);
     tcps_sess_t *pSess = pioDescr->ptr.pSess;
 
-    if (ATOMIC_CAS(&pSess->being_closed, 0, 1, &pSess->mut_being_closed)) {
-        FINALIZE;
+    if (!ATOMIC_CAS(&pSess->being_closed, 0, 1, &pSess->mut_being_closed)) {
+        FINALIZE; /* already being closed by another thread */
     }
 
 #if defined(ENABLE_IMTCP_EPOLL)
