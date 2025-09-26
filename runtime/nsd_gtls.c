@@ -1129,6 +1129,10 @@ finalize_it:
 }
 
 
+/*
+ * XXX:
+ *  2nd function
+ */
 /* check the ID of the remote peer - used for both fingerprint and
  * name authentication. This is common code. Will call into specific
  * drivers once the certificate has been obtained.
@@ -1144,6 +1148,11 @@ static rsRetVal gtlsChkPeerID(nsd_gtls_t *pThis) {
 
     ISOBJ_TYPE_assert(pThis, nsd_gtls);
 
+    /* XXX:
+     *  1st branch
+     *      But curretly rsyslog server supports only x.509 certificates 
+     *      Its sanity check for the future!!
+     */
     /* This function only works for X.509 certificates.  */
     if (gnutls_certificate_type_get(pThis->sess) != GNUTLS_CRT_X509) return RS_RET_TLS_CERT_ERR;
 
@@ -1161,6 +1170,9 @@ static rsRetVal gtlsChkPeerID(nsd_gtls_t *pThis) {
                      fromHost);
             free(fromHost);
         }
+        /*
+         * 2nd Branch 
+         */
         ABORT_FINALIZE(RS_RET_TLS_NO_CERT);
     }
 
@@ -1188,7 +1200,10 @@ finalize_it:
     RETiRet;
 }
 
-
+/*
+ * XXX:
+ *  1st function
+ */
 /* Verify the validity of the remote peer's certificate.
  * rgerhards, 2008-05-21
  */
@@ -1215,6 +1230,10 @@ static rsRetVal gtlsChkPeerCertValidity(nsd_gtls_t *pThis) {
         errno = 0;
         uchar *fromHost = NULL;
         nsd_ptcp.GetRemoteHName((nsd_t *)pThis->pTcp, &fromHost);
+        /*
+         * XXX:
+         *  First branch error
+         */
         LogError(0, RS_RET_TLS_NO_CERT, "peer %s did not provide a certificate, not permitted to talk to it", fromHost);
         free(fromHost);
         ABORT_FINALIZE(RS_RET_TLS_NO_CERT);
@@ -1286,6 +1305,10 @@ static rsRetVal gtlsChkPeerCertValidity(nsd_gtls_t *pThis) {
     if (bAbort == RSTRUE) {
         uchar *fromHost = NULL;
         nsd_ptcp.GetRemoteHName((nsd_t *)pThis->pTcp, &fromHost);
+        /*
+         * XXX:
+         *  Second branch error
+         */
         LogError(0, NO_ERRCODE, "not permitted to talk to peer '%s', certificate invalid: %s", fromHost, pszErrCause);
         free(fromHost);
         gtlsGetCertInfo(pThis, &pStr);
@@ -1328,7 +1351,34 @@ finalize_it:
     RETiRet;
 }
 
-
+/*
+ * XXX:
+ *  Here TLS validation will happen, but before it all the 
+ *  stack function only give error on higher debug, no error msg
+ *  so we have to extract the errors here.
+ *
+ *
+Thread 7 "rs:action-1-bui" hit Breakpoint 1, 0x00007fa8d2041580 in gtlsChkPeerCertValidity () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+(gdb) bt
+#0  0x00007fa8d2041580 in gtlsChkPeerCertValidity () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#1  0x00007fa8d2041ff6 in gtlsChkPeerAuth () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#2  0x00007fa8d204289d in Connect () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#3  0x00005589549af378 in TCPSendInitTarget ()
+#4  0x00005589549af688 in doTryResume ()
+#5  0x00005589549af83e in poolTryResume ()
+#6  0x00005589549afa43 in tryResume.lto_priv.2 ()
+#7  0x0000558954a0579b in actionDoRetry ()
+#8  0x0000558954a05e6f in actionPrepare ()
+#9  0x0000558954a06955 in actionTryCommit ()
+#10 0x0000558954a07661 in actionCommit ()
+#11 0x0000558954a0b07b in processBatchMain ()
+#12 0x00005589549fb396 in ConsumerReg ()
+#13 0x00005589549f88fc in wtiWorker ()
+#14 0x00005589549f8e61 in wtpWorker ()
+#15 0x00007fa8d248a19a in start_thread () from target:/lib64/libc.so.6
+#16 0x00007fa8d250e504 in clone () from target:/lib64/libc.so.6
+(gdb)
+*/
 /* check if it is OK to talk to the remote peer
  * rgerhards, 2008-05-21
  */
