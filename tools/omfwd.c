@@ -1294,6 +1294,17 @@ BEGINcommitTransaction
      * Note that rebind requires reconnect to the new targets. This is done by the
      * poolTryResume(), which needs to be made in any case.
      */
+    /*
+     * XXX:
+     *  pWrkrData = (wrkrInstanceData_t *)
+     *  pWrkrData->pData = (instanceData *)
+     *
+     *  instanceData have data member targetStats_t *target_stats;
+     *
+     *  wrkrInstanceData_t is in omfwd.c
+     *  instanceData is in omfwd.c
+     *  targetStats_t is in omfwd.c
+     */
     if (pWrkrData->pData->iRebindInterval && (pWrkrData->nXmit++ >= pWrkrData->pData->iRebindInterval)) {
         dbgprintf("REBIND (sent %d, interval %d) - omfwd dropping target connection (as configured)\n",
                   pWrkrData->nXmit, pWrkrData->pData->iRebindInterval);
@@ -1417,6 +1428,20 @@ finalize_it:
         LogMsg(0, RS_RET_SUSPENDED, LOG_WARNING,
                "omfwd: [wrkr %d/%" PRIuPTR "] no working target servers in pool available, suspending action",
                pWrkrData->wrkrID, (uintptr_t)pthread_self());
+        /*
+         * XXX:
+         *  RS_RET_SUSPENDED = -2007, < something was suspended, not neccesarily an error > 
+         *  TCP client talks to TLS+TCP server
+         *
+         *  We will incr the counter here suspended; how many times commit was suspended.
+         *  We will toagther with for each target how many bytes & total size was transfered.
+         *  grep for pTargetStats in this file for better understanding. (It will be per taget/destination)
+         *
+         *  TODO:
+         *      Its good we will get all the suspended counters
+         *      But we could have get the more spesific branch for our case, meanse where in this function 
+         *      first time we are marking it suspended.
+         */
     }
 ENDcommitTransaction
 
