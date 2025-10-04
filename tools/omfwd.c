@@ -1456,6 +1456,10 @@ finalize_it:
          *      Its good we will get all the suspended counters
          *      But we could have get the more spesific branch for our case, meanse where in this function 
          *      first time we are marking it suspended.
+         *
+         *      See countActiveTargets(); may be that will give you more accurate the reason behind the error
+         *      Work more on it!!
+         *      
          */
     }
 ENDcommitTransaction
