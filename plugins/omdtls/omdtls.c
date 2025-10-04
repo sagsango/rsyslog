@@ -80,7 +80,7 @@ MODULE_CNFNAME("omdtls")
 DEF_OMOD_STATIC_DATA;
 DEFobjCurrIf(glbl) DEFobjCurrIf(datetime) DEFobjCurrIf(statsobj) DEFobjCurrIf(net_ossl)
 
-    statsobj_t *dtlsStats;
+    statsobj_t *dtlsStats; /* XXX: Can we do somthing from here */
 STATSCOUNTER_DEF(ctrDtlsSubmit, mutCtrDtlsSubmit);
 STATSCOUNTER_DEF(ctrDtlsFail, mutCtrDtlsFail);
 

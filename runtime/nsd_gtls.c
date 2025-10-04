@@ -126,6 +126,11 @@ static rsRetVal doRetry(nsd_gtls_t *pNsd) {
     switch (pNsd->rtryCall) {
         case gtlsRtry_handshake:
             gnuRet = gnutls_handshake(pNsd->sess);
+            /*
+             * XXX: 
+             *  If it fails we should increment the failure count
+             *  There are other place where we make the glutls handshake
+             */
             if (gnuRet == GNUTLS_E_AGAIN || gnuRet == GNUTLS_E_INTERRUPTED) {
                 dbgprintf(
                     "doRetry: GnuTLS handshake retry did not finish - "
@@ -2393,6 +2398,10 @@ finalize_it:
 ENDobjQueryInterface(nsd_gtls)
 
 
+/*
+ * XXX:
+ *  Class distructor
+ */
 /* exit our class
  */
 BEGINObjClassExit(nsd_gtls, OBJ_IS_LOADABLE_MODULE) /* CHANGE class also in END MACRO! */
@@ -2407,6 +2416,10 @@ BEGINObjClassExit(nsd_gtls, OBJ_IS_LOADABLE_MODULE) /* CHANGE class also in END 
 ENDObjClassExit(nsd_gtls)
 
 
+/*
+ * XXX:
+ *  Class constructure
+ */
 /* Initialize the nsd_gtls class. Must be called as the very first method
  * before anything else is called inside this class.
  * rgerhards, 2008-02-19
@@ -2426,6 +2439,11 @@ ENDObjClassInit(nsd_gtls)
 /* --------------- here now comes the plumbing that makes as a library module --------------- */
 
 
+/*
+ * XXX:
+ *  Module distrcutor
+ *  TODO
+ */
 BEGINmodExit
     CODESTARTmodExit;
     nsd_gtlsClassExit();
@@ -2438,7 +2456,11 @@ BEGINqueryEtryPt
     CODEqueryEtryPt_STD_LIB_QUERIES;
 ENDqueryEtryPt
 
-
+/*
+ * XXX:
+ *  Module constructor
+ *  TODO
+ */
 BEGINmodInit()
     CODESTARTmodInit;
     *ipIFVersProvided = CURR_MOD_IF_VERSION; /* we only support the current interface specification */

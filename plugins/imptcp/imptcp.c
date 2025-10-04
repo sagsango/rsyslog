@@ -312,6 +312,11 @@ struct ptcplstn_s {
     sbool bSuppOctetFram;
     sbool bSPFramingFix;
     epolld_t *epd;
+    /*
+     *
+     * XXX:
+     *  We might be able to reuse these
+     */
     statsobj_t *stats; /* listener stats */
     intctr_t rcvdBytes;
     intctr_t rcvdDecompressed;

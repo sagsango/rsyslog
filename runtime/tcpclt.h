@@ -28,6 +28,10 @@
 #include "obj.h"
 
 /* the tcpclt object */
+/*
+ * XXX:
+ *  Add open stats counter here!
+ */
 typedef struct tcpclt_s {
     BEGINobjInstance
         ; /**< Data to implement generic object - MUST be the first data element! */

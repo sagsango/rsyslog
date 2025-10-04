@@ -216,6 +216,12 @@ rsRetVal rsrtInit(const char **ppErrObj, obj_if_t *pObjIF) {
         if (ppErrObj != NULL) *ppErrObj = "wtp";
         CHKiRet(wtpClassInit(NULL));
         if (ppErrObj != NULL) *ppErrObj = "queue";
+        /*
+         * XXX:
+         *  Here we call queue class constructure
+         *  There is no class :)
+         *  But this is a classy way!
+         */
         CHKiRet(qqueueClassInit(NULL));
         if (ppErrObj != NULL) *ppErrObj = "conf";
         CHKiRet(confClassInit(NULL));

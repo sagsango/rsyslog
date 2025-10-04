@@ -58,7 +58,7 @@ struct tcpLstnParams_s {
 struct tcpLstnPortList_s {
     tcpLstnParams_t *cnf_params; /**< listener config parameters */
     tcpsrv_t *pSrv; /**< pointer to higher-level server instance */
-    statsobj_t *stats; /**< associated stats object */
+    statsobj_t *stats; /**< associated stats object */ /* XXX: Can we resue these */
     ratelimit_t *ratelimiter;
     STATSCOUNTER_DEF(ctrSubmit, mutCtrSubmit)
     tcpLstnPortList_t *pNext; /**< next port or NULL */
@@ -66,7 +66,7 @@ struct tcpLstnPortList_s {
 
 
 typedef struct tcpsrvWrkrData_s {
-    statsobj_t *stats;
+    statsobj_t *stats; /* XXX: Can we reuse there */
     STATSCOUNTER_DEF(ctrRuns, mutCtrRuns);
     STATSCOUNTER_DEF(ctrRead, mutCtrRead);
     STATSCOUNTER_DEF(ctrEmptyRead, mutCtrEmptyRead);
@@ -110,6 +110,13 @@ struct tcpsrv_io_descr_s {
 #define TCPSRV_NO_ADDTL_DELIMITER -1 /* specifies that no additional delimiter is to be used in TCP framing */
 
 /* the tcpsrv object */
+/*
+ * XXX:
+ *  This is tcp server which will be having multiple session
+ *  we can add counters how many session creation failes something like that
+ *
+ *  But we dont need it in our case!!
+ */
 struct tcpsrv_s {
     BEGINobjInstance
         ; /**< Data to implement generic object - MUST be the first data element! */

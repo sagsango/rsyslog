@@ -634,6 +634,11 @@ static rsRetVal rsyslogd_InitGlobalClasses(void) {
 
     /* Intialize the runtime system */
     pErrObj = "rsyslog runtime"; /* set in case the runtime errors before setting an object */
+    /*
+     *
+     * XXX:
+     *  here we will end up initing the queue
+     */
     CHKiRet(rsrtInit(&pErrObj, &obj));
     rsrtSetErrLogger(rsyslogd_submitErrMsg);
 
@@ -1395,6 +1400,10 @@ static void initAll(int argc, char **argv) {
 
     /* we are done with the initial option parsing and processing. Now we init the system. */
 
+    /*
+     * XXX:
+     *  rsyslogd_InitGlobal() -> rsrtInit() -> qqueueClassInit()
+     */
     CHKiRet(rsyslogd_InitGlobalClasses());
 
     /* doing some core initializations */
@@ -2269,6 +2278,9 @@ int main(int argc, char **argv) {
 
     dbgClassInit();
 
+    /* XXX:
+     *  main() -> initAll() -> syslogd_InitGlobal() -> rsrtInit() -> qqueueClassInit()
+     */
     initAll(argc, argv);
 #ifdef HAVE_LIBSYSTEMD
     sd_notify(0, "READY=1");

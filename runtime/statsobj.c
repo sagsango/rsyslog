@@ -411,6 +411,10 @@ finalize_it:
     RETiRet;
 }
 
+/*
+ * XXX:
+ *  Get all the stats counters
+ */
 /* get all the object's countes together with object name as one line.
  */
 static rsRetVal getStatsLine(statsobj_t *pThis, cstr_t **ppcstr, int8_t bResetCtrs) {
@@ -577,7 +581,14 @@ static ATTR_NO_SANITIZE_THREAD rsRetVal emitPrometheusForObject(statsobj_t *o,
     return RS_RET_OK;
 }
 
-
+/*
+ *
+ *
+ *
+ * XXX:
+ *  Getting the stats from all the stats objects - all status from all status
+ *  objects
+ */
 /* this function can be used to obtain all stats lines. In this case,
  * a callback must be provided. This module than iterates over all objects and
  * submits each stats line to the callback. The callback has two parameters:
@@ -778,6 +789,15 @@ BEGINobjDebugPrint(statsobj) /* be sure to specify the object type also in END a
 ENDobjDebugPrint(statsobj)
 
 
+/*
+ *
+ * XXX:
+ *  This is dynamic interface loader, function. (THIS IS A FUNCTION)
+ *  we will only see the static inerface defined in queue.c for the statsobj
+ *  while interface member functions are not ininted.
+ *  
+ *  See the comments on the macro definition of the BEGINobjQueryInterface
+ */
 /* queryInterface function
  */
 BEGINobjQueryInterface(statsobj)
@@ -800,7 +820,7 @@ BEGINobjQueryInterface(statsobj)
     pIf->SetReadNotifier = setReadNotifier;
     pIf->SetReportingNamespace = setReportingNamespace;
     pIf->SetStatsObjFlags = setStatsObjFlags;
-    pIf->GetAllStatsLines = getAllStatsLines;
+    pIf->GetAllStatsLines = getAllStatsLines; /* XXX: Getting all the stats */
     pIf->AddCounter = addCounter;
     pIf->AddManagedCounter = addManagedCounter;
     pIf->AddPreCreatedCtr = addPreCreatedCounter;

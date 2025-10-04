@@ -290,7 +290,7 @@ static void generateStatsMsgs(void) {
     st_ru_oublock = ru.ru_oublock;
     st_ru_nvcsw = ru.ru_nvcsw;
     st_ru_nivcsw = ru.ru_nivcsw;
-    statsobj.GetAllStatsLines(doStatsLine, NULL, runModConf->statsFmt, runModConf->bResetCtrs);
+    statsobj.GetAllStatsLines(doStatsLine, NULL, runModConf->statsFmt, runModConf->bResetCtrs); /* XXX: Here we gather all the stats */
 }
 
 
@@ -525,6 +525,10 @@ ENDfreeCnf
 
 BEGINrunInput
     CODESTARTrunInput;
+    /*
+     * XXX:
+     *  This is where we print all the stats
+     */
     /* this is an endless loop - it is terminated when the thread is
      * signalled to do so. This, however, is handled by the framework,
      * right into the sleep below. Note that we DELIBERATLY output
@@ -534,6 +538,13 @@ BEGINrunInput
     while (glbl.GetGlobalInputTermState() == 0) {
         srSleep(runModConf->iStatsInterval, 0); /* seconds, micro seconds */
         DBGPRINTF("impstats: woke up, generating messages\n");
+        /*
+         *
+         * XXX:
+         *  Remember the logs every different types of stats start with the
+         *  BEGIN and then all the stats lines are printed and at the end 
+         *  END
+         */
         if (runModConf->bBracketing) submitLine("BEGIN", sizeof("BEGIN") - 1);
         generateStatsMsgs();
         if (runModConf->bBracketing) submitLine("END", sizeof("END") - 1);

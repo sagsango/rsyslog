@@ -29,6 +29,14 @@
 struct tcpsrv_s;
 
 /* the tcps_sess object */
+/*
+ *
+ * XXX:
+ *  This is tcp server, we dont want to add counter here
+ *  But comminity may ask this too?
+ *
+ *  It is per session!
+ */
 struct tcps_sess_s {
     BEGINobjInstance
         ; /* Data to implement generic object - MUST be the first data element! */

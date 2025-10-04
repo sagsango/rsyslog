@@ -1149,6 +1149,12 @@ finalize_it:
 }
 
 
+/*
+ *
+ * XXX:
+ *  Get the interface of the statsobj.
+ *  called by the queue class constructure
+ */
 /* This function shall be called by anyone who would like to use an object. It will
  * try to locate the object, load it into memory if not already present and return
  * a pointer to the objects interface.
@@ -1279,6 +1285,11 @@ BEGINobjQueryInterface(obj)
 finalize_it:
 ENDobjQueryInterface(obj)
 
+
+/*
+ * XXX:
+ * This is how queue.sstatsobj interface is inited
+ */
 
 /* This function returns a pointer to our own interface. It is used as the
  * hook that every object (including dynamically loaded ones) can use to

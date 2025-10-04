@@ -41,6 +41,9 @@ typedef enum {
 typedef nsd_if_t nsd_gtls_if_t; /* we just *implement* this interface */
 
 /* the nsd_gtls object */
+/* XXX:
+ *  We should add one stats counter here!
+ */
 struct nsd_gtls_s {
     BEGINobjInstance
         ; /* Data to implement generic object - MUST be the first data element! */

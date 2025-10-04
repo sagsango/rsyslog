@@ -725,6 +725,10 @@
 /** \} */  // end of module_entrypoint_blocks
 
 
+/*
+ * XXX:
+ *  Module initer
+ */
 /* modInit()
  * This has an extra parameter, which is the specific name of the modInit
  * function. That is needed for built-in modules, which must have unique

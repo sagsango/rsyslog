@@ -177,6 +177,11 @@ struct obj_s { /* the dummy struct that each derived class can be casted to */
 #define INTERFACEpropSetMeth(obj, prop, dataType) rsRetVal (*Set##prop)(obj##_t * pThis, dataType)
 /* class initializer */
 #define PROTOTYPEObjClassInit(objName) rsRetVal objName##ClassInit(struct modInfo_s *)
+
+/*
+ * XXX:
+ *  This file contains the code which should have been inited in early stage
+ */
 /* below: objName must be the object name (e.g. vm, strm, ...) and ISCORE must be
  * 1 if the module is a statically linked core module and 0 if it is a
  * dynamically loaded one. -- rgerhards, 2008-02-29
@@ -398,6 +403,12 @@ finalize_it:                                            \
  */
 #define CORE_COMPONENT NULL /* use this to indicate this is a core component */
 #define DONT_LOAD_LIB NULL /* do not load a library to obtain object interface (currently same as CORE_COMPONENT) */
+
+/* XXX:
+ *  NOTE: we are calling obj.UseObj, which will give us interface
+ *        one importnet thing is obj must have been inited very begining of the
+ *        init phase of the rsyslogd, (TODO: Lets see that)
+ */
 #define objUse(objName, FILENAME) obj.UseObj(__FILE__, (uchar *)#objName, (uchar *)FILENAME, (void *)&objName)
 #define objRelease(objName, FILENAME) obj.ReleaseObj(__FILE__, (uchar *)#objName, (uchar *)FILENAME, (void *)&objName)
 
@@ -407,6 +418,10 @@ finalize_it:                                            \
     int ifIsLoaded; /* is the interface loaded? (0-no, 1-yes; if no, functions can NOT be called! */
 
 
+/*
+ * XXX:
+ *  Define an interface version
+ */
 /* use the following define some place in your static data (suggested right at
  * the beginning
  */

@@ -111,6 +111,10 @@ struct statsobj_s {
         statsobj_read_notifier_t read_notifier;
         void *read_notifier_ctx;
         pthread_mutex_t mutCtr; /* to guard counter linked-list ops */
+        /*
+         * XXX:
+         *  Doubly linked list of counters!
+         */
         ctr_t *ctrRoot; /* doubly-linked list of statsobj counters */
         ctr_t *ctrLast;
         int flags;
@@ -126,6 +130,11 @@ struct sender_stats {
 };
 
 
+/* XXX:
+ *  This is cool way of defining the interface
+ *  First 2 members are version and is_locaded
+ *  check the macro definition for more details
+ */
 /* interfaces */
 BEGINinterface(statsobj) /* name must also be changed in ENDinterface macro! */
     INTERFACEObjDebugPrint(statsobj);

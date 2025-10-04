@@ -215,7 +215,7 @@
 
 /* static data */
 DEFobjStaticHelpers;
-DEFobjCurrIf(glbl) DEFobjCurrIf(strm) DEFobjCurrIf(datetime) DEFobjCurrIf(statsobj)
+DEFobjCurrIf(glbl) DEFobjCurrIf(strm) DEFobjCurrIf(datetime) DEFobjCurrIf(statsobj) /* XXX: This does not init the methods */
 
 #if __GNUC__ >= 8
     #pragma GCC diagnostic ignored "-Wcast-function-type"  // TODO: investigate further!
@@ -643,7 +643,7 @@ finalize_it:
 static rsRetVal ATTR_NONNULL() InitDA(qqueue_t *const pThis, const int bLockMutex) {
     DEFiRet;
     uchar pszBuf[64];
-    size_t lenBuf;
+ size_t lenBuf;
 
     ISOBJ_TYPE_assert(pThis, qqueue);
     if (bLockMutex == LOCK_MUTEX) {
@@ -1542,6 +1542,11 @@ finalize_it:
     RETiRet;
 }
 
+/*
+ *
+ * XXX:
+ *  Constructure for thge queue object
+ */
 /* Constructor for the queue object
  * This constructs the data structure, but does not yet start the queue. That
  * is done by queueStart(). The reason is that we want to give the caller a chance
@@ -2580,6 +2585,11 @@ rsRetVal qqueueStart(rsconf_t *cnf, qqueue_t *pThis) /* this is the Construction
 
     /* support statistics gathering */
     qName = obj.GetName((obj_t *)pThis);
+    /*
+     *
+     * XXX:
+     *  Construct the statsobj for the queue
+     */
     CHKiRet(statsobj.Construct(&pThis->statsobj));
     CHKiRet(statsobj.SetName(pThis->statsobj, qName));
     CHKiRet(statsobj.SetOrigin(pThis->statsobj, (uchar *)"core.queue"));
@@ -2599,10 +2609,21 @@ rsRetVal qqueueStart(rsconf_t *cnf, qqueue_t *pThis) /* this is the Construction
     STATSCOUNTER_INIT(pThis->ctrFDscrd, pThis->mutCtrFDscrd);
     CHKiRet(statsobj.AddCounter(pThis->statsobj, UCHAR_CONSTANT("discarded.full"), ctrType_IntCtr, CTR_FLAG_RESETTABLE,
                                 &pThis->ctrFDscrd));
+
+    /*
+     * XXX:
+     *  statobj member variable have mutex too!
+     *
+     */
     STATSCOUNTER_INIT(pThis->ctrNFDscrd, pThis->mutCtrNFDscrd);
     CHKiRet(statsobj.AddCounter(pThis->statsobj, UCHAR_CONSTANT("discarded.nf"), ctrType_IntCtr, CTR_FLAG_RESETTABLE,
                                 &pThis->ctrNFDscrd));
 
+    /*
+     *
+     * XXX:
+     *  statsobj variable is just a pointer, which points to the queue object
+     *  variable.
     pThis->ctrMaxqsize = 0; /* no mutex needed, thus no init call */
     CHKiRet(statsobj.AddCounter(pThis->statsobj, UCHAR_CONSTANT("maxqsize"), ctrType_Int, CTR_FLAG_NONE,
                                 &pThis->ctrMaxqsize));
@@ -3082,6 +3103,11 @@ static rsRetVal doEnqSingleObj(qqueue_t *pThis, flowControl_t flowCtlType, smsg_
 
     /* and finally enqueue the message */
     CHKiRet(qqueueAdd(pThis, pMsg));
+    /*
+     *
+     * XXX:
+     *  This is how we incremnet the stats counters
+     */
     STATSCOUNTER_SETMAX_NOMUT(pThis->ctrMaxqsize, pThis->iQueueSize);
 
     /* check if we had a file rollover and need to persist
@@ -3641,6 +3667,10 @@ static rsRetVal qqueueQueryInterface(interface_t __attribute__((unused)) * i) {
     return RS_RET_NOT_IMPLEMENTED;
 }
 
+/*
+ * XXX:
+ *  This is how statsobj is inited
+ */
 /* Initialize the stream class. Must be called as the very first method
  * before anything else is called inside this class.
  * rgerhards, 2008-01-09
@@ -3650,6 +3680,11 @@ BEGINObjClassInit(qqueue, 1, OBJ_IS_CORE_MODULE)
     CHKiRet(objUse(glbl, CORE_COMPONENT));
     CHKiRet(objUse(strm, CORE_COMPONENT));
     CHKiRet(objUse(datetime, CORE_COMPONENT));
+    /*
+     *
+     * XXX:
+     *  Here queue gets the statsobj interface
+     */
     CHKiRet(objUse(statsobj, CORE_COMPONENT));
 
     /* now set our own handlers */

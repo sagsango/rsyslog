@@ -82,7 +82,7 @@ typedef struct qLinkedList_S {
  * system libraries on some platforms (e.g., AIX). See queue.c for details.
  */
 struct queue_s {
-    BEGINobjInstance
+    BEGINobjInstance  /* XXX: For debgiining */
         ;
         queueType_t qType;
         int nLogDeq; /* number of elements currently logically dequeued */
@@ -205,6 +205,10 @@ struct queue_s {
         uchar *cryprovNameFull; /* full internal crypto provider name */
         DEF_ATOMIC_HELPER_MUT(mutQueueSize);
         DEF_ATOMIC_HELPER_MUT(mutLogDeq);
+        /*
+         * XXX:
+         *  Queue have statsobj to keep trak of the queue state
+         */
         /* for statistics subsystem */
         statsobj_t *statsobj;
         STATSCOUNTER_DEF(ctrEnqueued, mutCtrEnqueued)

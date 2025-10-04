@@ -75,7 +75,7 @@ DEFobjCurrIf(glbl) DEFobjCurrIf(net) DEFobjCurrIf(netstrms) DEFobjCurrIf(netstrm
 #define NO_FLUSH 0
 
         typedef struct _targetStats {
-    statsobj_t *stats;
+    statsobj_t *stats; /* XXX: This wont be usefull I guess. */
     intctr_t sentBytes;
     intctr_t sentMsgs;
     DEF_ATOMIC_HELPER_MUT64(mut_sentBytes);
