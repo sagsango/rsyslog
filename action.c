@@ -1597,6 +1597,72 @@ static rsRetVal ATTR_NONNULL() actionCommit(action_t *__restrict__ const pThis, 
      */
     DBGPRINTF("actionCommit[%s]: unhappy, we still have %d uncommitted messages.\n", pThis->pszName, nMsgs);
     int bDone = 0;
+    /*
+     * XXX:
+     *  This is the while loop which will keep retrying the send the logs to server
+     *  in case of certificate auth fails.
+     *
+     *  We should not try that many times, or have better logic if auth failure is going on.
+     *  OR wer should not return RS_RET_SUSPENDED in case of auth failure we should just do 
+     *  RS_RET_FORCE_TERM or more appropreate error code.
+     *
+     *
+     * TODO:
+     *  What we are trying to do, per destination/server we should record how many number of times
+     *  tls-handshake failed,  May be we will get that tls has failed throught the errorcode here.
+     *  But we have to notedown it somewhere (and this seems right place to incremnet the counter)
+     *  But the problem is where that counter will live?
+     *
+
+Stack trace on client:
+Thread 7 "rs:action-1-bui" hit Breakpoint 1, 0x00007fa8d2041580 in gtlsChkPeerCertValidity () fromtarget:/usr/lib64/rsyslog/lmnsd_gtls.so
+(gdb) bt
+#0  0x00007fa8d2041580 in gtlsChkPeerCertValidity () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#1  0x00007fa8d2041ff6 in gtlsChkPeerAuth () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#2  0x00007fa8d204289d in Connect () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#3  0x00005589549af378 in TCPSendInitTarget ()
+#4  0x00005589549af688 in doTryResume ()
+#5  0x00005589549af83e in poolTryResume ()
+#6  0x00005589549afa43 in tryResume.lto_priv.2 ()
+#7  0x0000558954a0579b in actionDoRetry ()
+#8  0x0000558954a05e6f in actionPrepare ()
+#9  0x0000558954a06955 in actionTryCommit ()
+#10 0x0000558954a07661 in actionCommit ()
+#11 0x0000558954a0b07b in processBatchMain ()
+#12 0x00005589549fb396 in ConsumerReg ()
+#13 0x00005589549f88fc in wtiWorker ()
+#14 0x00005589549f8e61 in wtpWorker ()
+#15 0x00007fa8d248a19a in start_thread () from target:/lib64/libc.so.6
+#16 0x00007fa8d250e504 in clone () from target:/lib64/libc.so.6
+(gdb)
+
+
+
+
+This is a tcp client + tcp server:
+Thread 2 "rs:action-16-bu" hit Breakpoint 2.2, Connect (pThis=0x77c018005ca0, family=0, port=0x60d45711cd00 "514",
+    host=0x60d45711ccc0 "10.117.30.173", device=0x0) at netstrm.c:415
+415 static rsRetVal Connect(netstrm_t *pThis, int family, uchar *port, uchar *host, char *device) {
+(gdb) bt
+#0  Connect (pThis=0x77c018005ca0, family=0, port=0x60d45711cd00 "514", host=0x60d45711ccc0 "10.117.30.173", device=0x0) at netstrm.c:415
+#1  0x000060d44fee9f50 in TCPSendInitTarget (pTarget=pTarget@entry=0x77c018000df0) at omfwd.c:938
+#2  0x000060d44feeacd8 in doTryResume (pTarget=0x77c018000df0) at omfwd.c:1156
+#3  0x000060d44feeaf96 in poolTryResume (pWrkrData=pWrkrData@entry=0x77c018000dc0) at omfwd.c:1060
+#4  0x000060d44feeb159 in tryResume (pWrkrData=0x77c018000dc0) at omfwd.c:1183
+#5  0x000060d44ff42d9e in actionDoRetry (pThis=pThis@entry=0x60d457129230, pWti=pWti@entry=0x60d457133390) at ../action.c:802
+#6  0x000060d44ff4380c in actionTryResume (pThis=0x60d457129230, pWti=0x60d457133390) at ../action.c:983
+#7  actionPrepare (pThis=0x60d457129230, pWti=0x60d457133390) at ../action.c:1011
+#8  actionPrepare (pThis=0x60d457129230, pWti=0x60d457133390) at ../action.c:1006
+#9  0x000060d44ff43eca in actionTryCommit (pThis=0x60d457129230, pWti=0x60d457133390, iparams=0x77c018000ba0, nparams=1) at ../action.c:1355
+#10 0x000060d44ff44633 in actionCommit (pThis=pThis@entry=0x60d457129230, pWti=pWti@entry=0x60d457133390) at ../action.c:1601
+#11 0x000060d44ff45bbb in processBatchMain (pVoid=0x60d457129230, pBatch=0x60d4571333c8, pWti=0x60d457133390) at ../action.c:1714
+#12 0x000060d44ff3678a in ConsumerReg (pThis=0x60d45712a8f0, pWti=0x60d457133390) at queue.c:2258
+#13 0x000060d44ff31f91 in wtiWorker (pThis=pThis@entry=0x60d457133390) at wti.c:395
+#14 0x000060d44ff2f71d in wtpWorker (arg=0x60d457133390) at wtp.c:412
+#15 0x000077c02aea27f1 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:448
+#16 0x000077c02af33b5c in __GI___clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+(gdb) bt
+     */
     do {
         iRet = actionTryCommit(pThis, pWti, iparams, nMsgs);
         DBGPRINTF("actionCommit[%s]: in retry loop, iRet %d\n", pThis->pszName, iRet);

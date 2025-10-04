@@ -935,6 +935,10 @@ static rsRetVal TCPSendInitTarget(targetData_t *const pTarget) {
         if (pData->gnutlsPriorityString != NULL) {
             CHKiRet(netstrm.SetGnutlsPriorityString(pTarget->pNetstrm, pData->gnutlsPriorityString));
         }
+
+        /*
+         * XXX:
+         *  Here we call Connect */
         CHKiRet(netstrm.Connect(pTarget->pNetstrm, glbl.GetDefPFFamily(runModConf->pConf), (uchar *)pTarget->port,
                                 (uchar *)pTarget->target_name, pData->device));
 
@@ -952,6 +956,10 @@ static rsRetVal TCPSendInitTarget(targetData_t *const pTarget) {
 
 finalize_it:
     if (iRet != RS_RET_OK) {
+        /*
+         * XXX:
+         *  Here we free the pTarget
+         */
         dbgprintf("TCPSendInitTarget FAILED with %d.\n", iRet);
         DestructTCPTargetData(pTarget);
     }
@@ -1171,6 +1179,13 @@ finalize_it:
             freeaddrinfo(pTarget->f_addr);
             pTarget->f_addr = NULL;
         }
+        /*
+         *
+         * XXX:
+         *  Again we get suspended error
+         *  It might be the cases our previous suspended counter 
+         *  also include this
+         */
         iRet = RS_RET_SUSPENDED;
     }
 

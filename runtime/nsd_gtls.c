@@ -2326,6 +2326,45 @@ static rsRetVal Connect(nsd_t *pNsd, int family, uchar *port, uchar *host, char 
     CHKgnutls(gnutls_handshake(pThis->sess));
     dbgprintf("GnuTLS handshake succeeded\n");
 
+    /*
+     * XXX:
+     *  Here we are checking the peer auth
+     *  So we should add connect failure count here.
+     *  Which will not how many times connect failed, 
+     *  that might not necessarly come from the tls auth failures
+     *  
+     *  But seems resonable to me right now!!
+     *  TODO: connect_failure_count vs gnu_tls_failure_counts
+     *  
+     *  Other one importent thing is this will be tried only once in my understanding so far mean
+     *  gtlsChkPeerAuth will be called only once, so counter is just a flag.
+     *
+     *
+     *  In case of the failure pThis will be freed by the caller TCPSendInitTarget()
+     *
+     *
+Stack trace on client:
+Thread 7 "rs:action-1-bui" hit Breakpoint 1, 0x00007fa8d2041580 in gtlsChkPeerCertValidity () fromtarget:/usr/lib64/rsyslog/lmnsd_gtls.so
+(gdb) bt
+#0  0x00007fa8d2041580 in gtlsChkPeerCertValidity () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#1  0x00007fa8d2041ff6 in gtlsChkPeerAuth () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#2  0x00007fa8d204289d in Connect () from target:/usr/lib64/rsyslog/lmnsd_gtls.so
+#3  0x00005589549af378 in TCPSendInitTarget ()
+#4  0x00005589549af688 in doTryResume ()
+#5  0x00005589549af83e in poolTryResume ()
+#6  0x00005589549afa43 in tryResume.lto_priv.2 ()
+#7  0x0000558954a0579b in actionDoRetry ()
+#8  0x0000558954a05e6f in actionPrepare ()
+#9  0x0000558954a06955 in actionTryCommit ()
+#10 0x0000558954a07661 in actionCommit ()
+#11 0x0000558954a0b07b in processBatchMain ()
+#12 0x00005589549fb396 in ConsumerReg ()
+#13 0x00005589549f88fc in wtiWorker ()
+#14 0x00005589549f8e61 in wtpWorker ()
+#15 0x00007fa8d248a19a in start_thread () from target:/lib64/libc.so.6
+#16 0x00007fa8d250e504 in clone () from target:/lib64/libc.so.6
+(gdb)
+     */
     /* now check if the remote peer is permitted to talk to us - ideally, we
      * should do this during the handshake, but GnuTLS does not yet provide
      * the necessary callbacks -- rgerhards, 2008-05-26
@@ -2344,6 +2383,7 @@ finalize_it:
             free(pThis->pszConnectHost);
             pThis->pszConnectHost = NULL;
         }
+
     }
 
     RETiRet;
