@@ -78,8 +78,10 @@ DEFobjCurrIf(glbl) DEFobjCurrIf(net) DEFobjCurrIf(netstrms) DEFobjCurrIf(netstrm
     statsobj_t *stats; /* XXX: This wont be usefull I guess. */
     intctr_t sentBytes;
     intctr_t sentMsgs;
+    intctr_t disconnected;
     DEF_ATOMIC_HELPER_MUT64(mut_sentBytes);
     DEF_ATOMIC_HELPER_MUT64(mut_sentMsgs);
+    DEF_ATOMIC_HELPER_MUT64(mut_disconnected);
 } targetStats_t;
 
 typedef struct _instanceData {
@@ -1409,6 +1411,9 @@ BEGINcommitTransaction
                 iRet = RS_RET_OK;
             }
         }
+        else if (!pWrkrData->target[j].bIsConnected) {
+            ATOMIC_INC_uint64(&pWrkrData->target[j].pTargetStats->disconnected, &pWrkrData->target[j].pTargetStats->mut_disconnected);
+        }
     }
 
 finalize_it:
@@ -1586,6 +1591,11 @@ static rsRetVal setupInstStatsCtrs(instanceData *const pData) {
         INIT_ATOMIC_HELPER_MUT64(pData->target_stats[i].mut_sentMsgs);
         CHKiRet(statsobj.AddCounter(pData->target_stats[i].stats, UCHAR_CONSTANT("messages.sent"), ctrType_IntCtr,
                                     CTR_FLAG_RESETTABLE, &(pData->target_stats[i].sentMsgs)));
+
+        pData->target_stats[i].disconnected  = 0;
+        INIT_ATOMIC_HELPER_MUT64(pData->target_stats[i].mut_disconnected);
+        CHKiRet(statsobj.AddCounter(pData->target_stats[i].stats, UCHAR_CONSTANT("disconnected"), ctrType_IntCtr,
+                                    CTR_FLAG_RESETTABLE, &(pData->target_stats[i].disconnected)));
 
         CHKiRet(statsobj.ConstructFinalize(pData->target_stats[i].stats));
     }
