@@ -180,6 +180,10 @@ struct instanceConf_s {
 };
 
 
+/*
+ * XXX:
+ *  This is how file system object is getting tracked
+ */
 /* file system objects */
 typedef struct fs_edge_s fs_edge_t;
 typedef struct fs_node_s fs_node_t;
@@ -669,6 +673,11 @@ static sbool isIgnoreOlderFile(const instanceConf_t *const inst, const char *con
     return 0;
 }
 
+
+/* XXX:
+ *
+ * Adding new file 
+ */
 /* add a new file system object if it not yet exists, ignore call
  * if it already does.
  */
