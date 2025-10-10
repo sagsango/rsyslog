@@ -2568,6 +2568,11 @@ static rsRetVal do_fen(void) {
 #endif /* #if OS_SOLARIS */
 
 
+/*
+ * XXX:
+ *  This will called by the framework in a while loop
+ *  for all the modules one by one
+ */
 /* This function is called by the framework to gather the input. The module stays
  * most of its lifetime inside this function. It MUST NEVER exit this function. Doing
  * so would end module processing and rsyslog would NOT reschedule the module. If
@@ -2586,7 +2591,7 @@ BEGINrunInput
                                           : ((runModConf->opMode == OPMODE_INOTIFY) ? "inotify" : "fen"));
     if (runModConf->opMode == OPMODE_POLLING)
         iRet = doPolling();
-    else if (runModConf->opMode == OPMODE_INOTIFY)
+    else if (runModConf->opMode == OPMODE_INOTIFY) /* XXX: This is our mode */
         iRet = do_inotify();
     else if (runModConf->opMode == OPMODE_FEN)
         iRet = do_fen();

@@ -809,6 +809,9 @@ static rsRetVal tellModulesActivateConfig(void) {
 }
 
 
+/* XXX:
+ * Here we will run all the module imfile etc modules
+ */
 /* Actually run the input modules.  This happens after privileges are dropped,
  * if that is requested.
  */
