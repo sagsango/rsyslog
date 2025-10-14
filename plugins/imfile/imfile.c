@@ -514,6 +514,14 @@ static int in_setupWatch(act_obj_t *const act, const int is_file) {
     int wd = -1;
     if (runModConf->opMode != OPMODE_INOTIFY) goto done;
 
+    /*
+     *
+     *
+     * XXX:
+     *  inotify_add_watch is a system call to get notified when some even occours
+     *  This is one of the efficient way to watch for new data on log file
+     *
+     */
     wd =
         inotify_add_watch(ino_fd, act->name,
                           (is_file) ? IN_MODIFY | IN_DONT_FOLLOW : IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO);
@@ -2221,7 +2229,19 @@ static void do_initial_poll_run(void) {
     }
 }
 
-
+/*
+ *
+ * XXX:
+ *  This is polling mode of the imfile
+ *  default interval of polling is 10 sec.
+ *
+ *  (Is there a better way? epoll wont work here
+ *  they use inotify_add_watch() event based mechanism):ew
+ *  
+ *  See man page of inotify(2)
+ *  inotify - monitoring filesystem events
+ *
+ */
 /* Monitor files in polling mode. */
 static rsRetVal doPolling(void) {
     DEFiRet;
