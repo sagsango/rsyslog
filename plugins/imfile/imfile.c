@@ -155,6 +155,13 @@ struct instanceConf_s {
     int iSeverity;
     int readTimeout;
     unsigned delay_perMsg;
+    /*
+     *
+     * XXX:
+     *      Veriable corresponding to the
+     *      deleteStateOnFileMove="on"
+     *      deleteStateOnFileDelete="on"
+     */
     sbool bRMStateOnDel;
     sbool bRMStateOnMove;
     uint8_t readMode;
@@ -1015,6 +1022,11 @@ static void act_obj_destroy(act_obj_t *const act, const int is_deleted) {
          *   - If the configuration specifies not to preserve the state file after the file
          *     has been renamed. This prevents orphaned state files.
          */
+        /*
+         *
+         * XXX:
+         *  These logs will show if state is getting deleted
+         */
         if (is_deleted && ((!act->in_move && inst->bRMStateOnDel) || inst->bRMStateOnMove)) {
             DBGPRINTF("act_obj_destroy: deleting state file %s\n", statefn);
             unlink((char *)statefn);
@@ -1567,7 +1579,14 @@ static void pollFileCancelCleanup(void *pArg) {
     if (*ppCStr != NULL) rsCStrDestruct(ppCStr);
 }
 
-
+/*
+ *
+ * XXX:
+ *  We are doing poll
+       950 5965.415133717:imfile.c       : imfile.c: pollFileReal enter, act 0x7f16ec001100, pStrm (nil), name '/dev/shm/policy_hitlog/hitCount3.log'
+       951 5965.415137331:imfile.c       : imfile.c: pollFileReal enter, edge 0x564b9ed84830
+       952 5965.415140762:imfile.c       : imfile.c: pollFileReal enter, edge->instarr 0x564b9ed544c0
+ */
 /* pollFile needs to be split due to the unfortunate pthread_cancel_push() macros. */
 static rsRetVal ATTR_NONNULL() pollFileReal(act_obj_t *act, cstr_t **pCStr) {
     int64 strtOffs;
