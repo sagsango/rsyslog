@@ -222,6 +222,12 @@ struct act_obj_s {
     int is_symlink;
     time_t time_to_delete; /* Helper variable to DELAY the actual file delete in act_obj_unlink */
 };
+
+/*
+ * XXX:
+ *  fsedge is a just an edge in the tree like file system
+ *  which contains the current node and link to parents & childs
+ */
 struct fs_edge_s {
     fs_node_t *parent; /* node pointing to this edge */
     fs_node_t *node; /* node this edge points to */
@@ -396,7 +402,11 @@ static const uchar *getStateFileDir(void) {
     return (wrkdir);
 }
 
-
+/*
+ * XXX:
+ *  OLD_ prifix mean old style state file names, we might be not using those
+ *  confirm with the logs
+ */
 /* try to open an old-style state file for given file. If the state file does not
  * exist or cannot be read, an error is returned.
  */
@@ -557,6 +567,10 @@ static int wdmap_cmp(const void *k, const void *a) {
     else
         return 0;
 }
+/*
+ * XXX:
+ *  Binary search for wd in the sorted wdmap[wd] = * atc array
+ */
 /* looks up a wdmap entry and returns it's index if found
  * or -1 if not found.
  */
@@ -588,6 +602,12 @@ finalize_it:
 
 #endif  // #ifdef HAVE_INOTIFY_INIT
 
+/*
+ * XXX: solaries they dont have inotify()
+ *  port_associate vs inotify
+ *
+ *  THIS IS NOT FOR US
+ */
 #if defined(OS_SOLARIS) && defined(HAVE_PORT_SOURCE_FILE)
 static void ATTR_NONNULL() fen_setupWatch(act_obj_t *const act) {
     DBGPRINTF("fen_setupWatch: enter, opMode %d\n", runModConf->opMode);
@@ -762,6 +782,7 @@ static rsRetVal ATTR_NONNULL(1, 2) act_obj_add(fs_edge_t *const edge,
         CHKmalloc(act->multiSub.ppMsgs = malloc(inst->nMultiSub * sizeof(smsg_t *)));
         act->multiSub.maxElem = inst->nMultiSub;
         act->multiSub.nElem = 0;
+        /* XXX: Read it till EOF */
         pollFile(act);
     }
 
@@ -808,6 +829,11 @@ static void detect_updates(fs_edge_t *const edge) {
                    e.g. file has been closed, so we will never have old inode (but
                         why was it closed then? --> check)
              */
+
+            /*
+             * XXX: How they are using ino in this system call
+             *      inode is always hidden omn system call as arg
+             */
             r = fstat(act->ino, &fileInfo);
             if (r == -1) {
                 time_t ttNow;
@@ -839,6 +865,12 @@ static void detect_updates(fs_edge_t *const edge) {
             }
             break;
         } else if (fileInfo.st_ino != act->ino) {
+            /*
+             *
+             * XXX:
+             *      For sure here we are going to make the changes of fix,
+             *      means after this flow
+             */
             DBGPRINTF(
                 "file '%s' inode changed from %llu to %llu, unlinking from "
                 "internal lists\n",
@@ -980,6 +1012,11 @@ static void ATTR_NONNULL() poll_timeouts(fs_edge_t *const edge) {
 }
 #endif
 
+/*
+ * XXX:
+ *  TODO: Here we will make changes after debugging
+ *        One of the 2 function responsible for the state file removal
+ */
 
 /* destruct a single act_obj object */
 static void act_obj_destroy(act_obj_t *const act, const int is_deleted) {
@@ -1275,6 +1312,12 @@ get_file_id_hash(const char *data, size_t lendata, char *const hash_str, const s
     }
 }
 
+
+/*
+ * XXX:
+ *  Here we add create the state file, if it changed 
+ *  then we will populate the previous one
+ */
 
 /* this returns the file-id for a given file
  */
@@ -1586,6 +1629,11 @@ static void pollFileCancelCleanup(void *pArg) {
        950 5965.415133717:imfile.c       : imfile.c: pollFileReal enter, act 0x7f16ec001100, pStrm (nil), name '/dev/shm/policy_hitlog/hitCount3.log'
        951 5965.415137331:imfile.c       : imfile.c: pollFileReal enter, edge 0x564b9ed84830
        952 5965.415140762:imfile.c       : imfile.c: pollFileReal enter, edge->instarr 0x564b9ed544c0
+
+       This seems to read the file lines and enqueue them in the bulk.
+       It will read the files, untill it get EOF.
+
+       This is a very bad name for the function. Its not a poll.
  */
 /* pollFile needs to be split due to the unfortunate pthread_cancel_push() macros. */
 static rsRetVal ATTR_NONNULL() pollFileReal(act_obj_t *act, cstr_t **pCStr) {
@@ -2691,6 +2739,12 @@ finalize_it:
     RETiRet;
 }
 
+/*
+ *
+ * XXX:
+ *  This is the function which cleansup the old state file
+ *  By calling unlink()
+ */
 /* This function should be called after any file ID change - that is if
  * file grown from hash-only statefile, or was truncated, this will ensure
  * we delete the old file so we do not make garbage in our working dir and
@@ -2722,6 +2776,12 @@ static void removeOldStatefile(const uchar *statefn, const char *hashToDelete) {
 }
 
 
+/*
+ *
+ * XXX:
+ *  This is the function which creats the state file
+ *  And remove the older one
+ */
 /* This function persists information for a specific file being monitored.
  * To do so, it simply persists the stream object. We do NOT abort on error
  * iRet as that makes matters worse (at least we can try persisting the others...).
