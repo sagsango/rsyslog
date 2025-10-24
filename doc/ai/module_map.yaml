@@ -36,9 +36,27 @@ contrib_mmkubernetes:
   notes:
     - WID is per-thread; shared caches in pData must be guarded.
 
+mmsnareparse:
+  paths: ["plugins/mmsnareparse/"]
+  requires_serialization: false
+  notes:
+    - Parsing logic does not maintain shared mutable state.
+
 ommysql:
   paths: ["plugins/ommysql/"]
   requires_serialization: false
   notes:
     - Per-worker MYSQL handle in pWrkrData; no module-level RW lock required after refactor.
+
+mmjsontransform:
+  paths: ["plugins/mmjsontransform/"]
+  requires_serialization: false
+  notes:
+    - Rewrites JSON trees per message without shared mutable state.
+
+mmjsonrewrite:
+  paths: ["plugins/mmjsonrewrite/"]
+  requires_serialization: false
+  notes:
+    - Expands dotted JSON property names into nested containers per message.
 
