@@ -984,7 +984,6 @@ static void act_obj_destroy(act_obj_t *const act, const int is_deleted) {
         if (inst->bRMStateOnDel) {
             statefn = getStateFileName(act, statefile, sizeof(statefile));
             getFullStateFileName(statefn, act->file_id, toDel, sizeof(toDel));  // TODO: check!
-            statefn = toDel;
         }
         persistStrmState(act);
         strm.Destruct(&act->pStrm);
@@ -1000,7 +999,10 @@ static void act_obj_destroy(act_obj_t *const act, const int is_deleted) {
          */
         if (is_deleted && ((!act->in_move && inst->bRMStateOnDel) || inst->bRMStateOnMove)) {
             DBGPRINTF("act_obj_destroy: deleting state file %s\n", statefn);
-            unlink((char *)statefn);
+            unlink((char *)toDel);
+	    getFullStateFileName(statefn, act->file_id_prev, toDel, sizeof(toDel));
+	    unlink((char *)toDel);
+
         }
     }
     if (act->ratelimiter != NULL) {
@@ -2720,6 +2722,8 @@ static rsRetVal ATTR_NONNULL() persistStrmState(act_obj_t *const act) {
     /* file-id changed remove the old statefile */
     if (strncmp((const char *)act->file_id_prev, (const char *)act->file_id, FILE_ID_HASH_SIZE)) {
         removeOldStatefile(statefn, act->file_id_prev);
+	strncpy(act->file_id_prev, (const char *)act->file_id, FILE_ID_HASH_SIZE);
+// SAGAR
     }
 
 finalize_it:
