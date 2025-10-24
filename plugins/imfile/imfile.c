@@ -939,6 +939,10 @@ finalize_it:
     RETiRet;
 }
 
+/*
+ * XXX:
+ *  Polling starts from here
+ */
 static void ATTR_NONNULL() poll_tree(fs_edge_t *const chld) {
     struct stat fileInfo;
     glob_t files;
