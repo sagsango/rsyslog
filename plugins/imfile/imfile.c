@@ -1470,6 +1470,9 @@ static rsRetVal ATTR_NONNULL(1) openFileWithStateFile(act_obj_t *const act) {
     getFullStateFileName(statefn, act->file_id, pszSFNam, sizeof(pszSFNam));
     DBGPRINTF("trying to open state for '%s', state file '%s'\n", act->name, pszSFNam);
 
+    /* 
+     * XXX: try to open => imfile-state:<inode_number>:<fileID/hashOf512Bytes>
+     */
     /* check if the file exists */
     fd = open((char *)pszSFNam, O_CLOEXEC | O_NOCTTY | O_RDONLY, 0600);
     if (fd < 0) {
@@ -1479,6 +1482,9 @@ static rsRetVal ATTR_NONNULL(1) openFileWithStateFile(act_obj_t *const act) {
                     "state file %s for %s does not exist - trying to see if "
                     "inode-only file exists\n",
                     pszSFNam, act->name);
+               /*
+                * XXX: try to open => imfile-state:<inode_number>
+                */
                 getFullStateFileName(statefn, "", pszSFNam, sizeof(pszSFNam));
                 fd = open((char *)pszSFNam, O_CLOEXEC | O_NOCTTY | O_RDONLY, 0600);
                 if (fd >= 0) {
